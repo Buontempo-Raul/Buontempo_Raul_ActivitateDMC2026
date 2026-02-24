@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">La Mia Applicazione</string>
+    <string name="button2_text">Premi per Cambiare</string>
+    <string name="textView_text">Ciao Mondo!</string>
+    <string name="editText_text">Ciao</string>
+</resources>
