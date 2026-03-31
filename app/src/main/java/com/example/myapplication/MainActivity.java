@@ -20,9 +20,18 @@ public class MainActivity extends AppCompatActivity {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    Bere berePrimita = (Bere) result.getData().getSerializableExtra("BERE_OBJECT");
+                    // Modificat: Folosim getParcelableExtra în loc de getSerializableExtra
+                    Bere berePrimita = result.getData().getParcelableExtra("BERE_OBJECT");
+                    int editPosition = result.getData().getIntExtra("EDIT_POSITION", -1);
+
                     if (berePrimita != null) {
-                        listaBeri.add(berePrimita);
+                        if (editPosition != -1) {
+                            listaBeri.set(editPosition, berePrimita);
+                            Toast.makeText(this, "Bere modificată!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            listaBeri.add(berePrimita);
+                            Toast.makeText(this, "Bere adăugată!", Toast.LENGTH_SHORT).show();
+                        }
                         adapter.notifyDataSetChanged();
                     }
                 }
@@ -36,15 +45,17 @@ public class MainActivity extends AppCompatActivity {
 
         ListView lvBeri = findViewById(R.id.lvBeri);
         Button btnAddBeer = findViewById(R.id.btnAddBeer);
-        Button btnGoToSecond = findViewById(R.id.btnGoToSecond);
-        Button btnGoToFourth = findViewById(R.id.btnGoToFourth);
 
         adapter = new BeerAdapter(this, listaBeri);
         lvBeri.setAdapter(adapter);
 
         lvBeri.setOnItemClickListener((parent, view, position, id) -> {
             Bere bereSelectata = listaBeri.get(position);
-            Toast.makeText(MainActivity.this, "Bere selectată:\n" + bereSelectata.toString(), Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(MainActivity.this, AddBeerActivity.class);
+            // Modificat: Trimiterea obiectului Parcelable
+            intent.putExtra("EDIT_BERE", bereSelectata);
+            intent.putExtra("EDIT_POSITION", position);
+            addBeerLauncher.launch(intent);
         });
 
         lvBeri.setOnItemLongClickListener((parent, view, position, id) -> {
@@ -57,16 +68,6 @@ public class MainActivity extends AppCompatActivity {
         btnAddBeer.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddBeerActivity.class);
             addBeerLauncher.launch(intent);
-        });
-
-        btnGoToSecond.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SecondActivity.class);
-            startActivity(intent);
-        });
-
-        btnGoToFourth.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, FourthActivity.class);
-            startActivity(intent);
         });
     }
 }

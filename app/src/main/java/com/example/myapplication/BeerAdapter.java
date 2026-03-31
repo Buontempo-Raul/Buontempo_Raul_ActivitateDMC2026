@@ -31,9 +31,9 @@ public class BeerAdapter extends ArrayAdapter<Bere> {
             TextView tvRating = convertView.findViewById(R.id.tvItemRating);
 
             tvNume.setText(bere.getNume());
-            String detaliu = "Tip: " + bere.getTip() + " | " + bere.getCantitate() + "ml";
+            String detaliu = "Tip: " + bere.getTip() + " | " + bere.getCantitate() + " ml";
             tvDetaliu.setText(detaliu);
-            tvRating.setText("Rating: " + bere.getRating());
+            tvRating.setText("⭐ " + bere.getRating());
         }
 
         return convertView;

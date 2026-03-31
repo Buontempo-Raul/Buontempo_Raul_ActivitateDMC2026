@@ -16,6 +16,8 @@ import java.util.Date;
 
 public class AddBeerActivity extends AppCompatActivity {
 
+    private int editPosition = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +33,39 @@ public class AddBeerActivity extends AppCompatActivity {
 
         spTip.setAdapter(new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item, Bere.Type.values()));
+
+        // Verificăm dacă am primit un obiect pentru editare
+        Intent intent = getIntent();
+        if (intent.hasExtra("EDIT_BERE")) {
+            // Modificat: Folosim getParcelableExtra
+            Bere bereDeEditat = intent.getParcelableExtra("EDIT_BERE");
+            editPosition = intent.getIntExtra("EDIT_POSITION", -1);
+
+            if (bereDeEditat != null) {
+                etNume.setText(bereDeEditat.getNume());
+                etCantitate.setText(String.valueOf(bereDeEditat.getCantitate()));
+                cbAlcoholica.setChecked(bereDeEditat.isAlcoholica());
+                rbRating.setRating((float) bereDeEditat.getRating());
+                
+                // Setăm spinner-ul pe tipul corespunzător
+                Bere.Type tip = bereDeEditat.getTip();
+                for (int i = 0; i < Bere.Type.values().length; i++) {
+                    if (Bere.Type.values()[i] == tip) {
+                        spTip.setSelection(i);
+                        break;
+                    }
+                }
+
+                // Setăm DatePicker-ul
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(bereDeEditat.getDataProductie());
+                dpDataProductie.init(calendar.get(Calendar.YEAR), 
+                                  calendar.get(Calendar.MONTH), 
+                                  calendar.get(Calendar.DAY_OF_MONTH), null);
+                
+                btnSave.setText("Actualizează");
+            }
+        }
 
         btnSave.setOnClickListener(v -> {
             String nume = etNume.getText().toString();
@@ -50,10 +85,12 @@ public class AddBeerActivity extends AppCompatActivity {
             calendar.set(dpDataProductie.getYear(), dpDataProductie.getMonth(), dpDataProductie.getDayOfMonth());
             Date dataProductie = calendar.getTime();
 
-            Bere bereNoua = new Bere(nume, cantitate, alcoholica, rating, tip, dataProductie);
+            Bere bereRezultat = new Bere(nume, cantitate, alcoholica, rating, tip, dataProductie);
 
             Intent resultIntent = new Intent();
-            resultIntent.putExtra("BERE_OBJECT", bereNoua);
+            // Obiectul Bere este acum Parcelable
+            resultIntent.putExtra("BERE_OBJECT", bereRezultat);
+            resultIntent.putExtra("EDIT_POSITION", editPosition);
             setResult(RESULT_OK, resultIntent);
             finish();
         });

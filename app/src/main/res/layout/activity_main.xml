@@ -11,22 +11,7 @@
         android:id="@+id/btnAddBeer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100px"
         android:text="Adaugă Bere" />
-
-    <Button
-        android:id="@+id/btnGoToSecond"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Mergi la SecondActivity" />
-
-    <Button
-        android:id="@+id/btnGoToFourth"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Mergi la FourthActivity" />
 
     <ListView
         android:id="@+id/lvBeri"

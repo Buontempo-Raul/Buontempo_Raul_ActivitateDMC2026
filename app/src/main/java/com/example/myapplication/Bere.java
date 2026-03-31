@@ -1,9 +1,10 @@
 package com.example.myapplication;
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
 import java.util.Date;
 
-public class Bere implements Serializable {
+public class Bere implements Parcelable {
 
     public enum Type {
         BLONDA, NEAGRA, NEFILTRATA, IPA, LAGER
@@ -27,6 +28,42 @@ public class Bere implements Serializable {
         this.tip = tip;
         this.dataProductie = dataProductie;
     }
+
+    protected Bere(Parcel in) {
+        nume = in.readString();
+        cantitate = in.readInt();
+        alcoholica = in.readByte() != 0;
+        rating = in.readDouble();
+        tip = Type.valueOf(in.readString());
+        dataProductie = new Date(in.readLong());
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(nume);
+        dest.writeInt(cantitate);
+        dest.writeByte((byte) (alcoholica ? 1 : 0));
+        dest.writeDouble(rating);
+        dest.writeString(tip.name());
+        dest.writeLong(dataProductie != null ? dataProductie.getTime() : -1);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Bere> CREATOR = new Creator<Bere>() {
+        @Override
+        public Bere createFromParcel(Parcel in) {
+            return new Bere(in);
+        }
+
+        @Override
+        public Bere[] newArray(int size) {
+            return new Bere[size];
+        }
+    };
 
     public String getNume() {
         return nume;
