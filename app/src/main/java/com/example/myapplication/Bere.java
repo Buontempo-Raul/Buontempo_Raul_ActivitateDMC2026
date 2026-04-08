@@ -2,9 +2,12 @@ package com.example.myapplication;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import java.io.Serializable;
 import java.util.Date;
 
-public class Bere implements Parcelable {
+public class Bere implements Parcelable, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public enum Type {
         BLONDA, NEAGRA, NEFILTRATA, IPA, LAGER

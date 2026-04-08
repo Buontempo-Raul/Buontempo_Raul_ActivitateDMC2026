@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="16dp"
+    android:paddingTop="32dp"
     tools:context=".MainActivity">
 
     <Button
@@ -12,6 +16,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Adaugă Bere" />
+
+    <Button
+        android:id="@+id/btnSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Setări"
+        android:layout_marginTop="8dp" />
 
     <ListView
         android:id="@+id/lvBeri"

@@ -24,6 +24,9 @@
             android:name=".AddBeerActivity"
             android:exported="false" />
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".FourthActivity"
             android:exported="false" />
         <activity
