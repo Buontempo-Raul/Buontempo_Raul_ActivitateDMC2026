@@ -1,6 +1,5 @@
 package com.example.myapplication;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -17,16 +16,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Calendar;
 import java.util.Date;
 
 public class AddBeerActivity extends AppCompatActivity {
 
     private int editPosition = -1;
-    private static final String FILE_NAME = "beri.dat";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,12 +90,7 @@ public class AddBeerActivity extends AppCompatActivity {
 
             Bere bereRezultat = new Bere(nume, cantitate, alcoholica, rating, tip, dataProductie);
 
-            if (editPosition == -1) {
-                saveToFile(bereRezultat);
-            }
-
             Intent resultIntent = new Intent();
-            // Explicitly cast to Parcelable to avoid ambiguity since Bere implements both Parcelable and Serializable
             resultIntent.putExtra("BERE_OBJECT", (Parcelable) bereRezultat);
             resultIntent.putExtra("EDIT_POSITION", editPosition);
             setResult(RESULT_OK, resultIntent);
@@ -108,28 +98,14 @@ public class AddBeerActivity extends AppCompatActivity {
         });
     }
 
-    private void saveToFile(Bere bere) {
-        try (FileOutputStream fos = openFileOutput(FILE_NAME, Context.MODE_APPEND);
-             ObjectOutputStream oos = new AppendableObjectOutputStream(fos)) {
-            oos.writeObject(bere);
-        } catch (IOException e) {
-            try (FileOutputStream fos = openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
-                 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-                oos.writeObject(bere);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
-
     private void applyPreferences() {
         SharedPreferences prefs = getSharedPreferences("Settings", MODE_PRIVATE);
         float textSize = prefs.getFloat("text_size", 18);
         String textColor = prefs.getString("text_color", "#000000");
 
-        int color = Color.BLACK;
+        int colorValue = Color.BLACK;
         try {
-            color = Color.parseColor(textColor);
+            colorValue = Color.parseColor(textColor);
         } catch (Exception ignored) {}
 
         TextView[] textViews = {
@@ -140,17 +116,7 @@ public class AddBeerActivity extends AppCompatActivity {
 
         for (TextView tv : textViews) {
             tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
-            tv.setTextColor(color);
-        }
-    }
-
-    private static class AppendableObjectOutputStream extends ObjectOutputStream {
-        public AppendableObjectOutputStream(FileOutputStream out) throws IOException {
-            super(out);
-        }
-        @Override
-        protected void writeStreamHeader() throws IOException {
-            reset();
+            tv.setTextColor(colorValue);
         }
     }
 }
