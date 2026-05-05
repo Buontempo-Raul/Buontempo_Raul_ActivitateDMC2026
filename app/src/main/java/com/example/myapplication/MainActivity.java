@@ -1,135 +1,242 @@
 package com.example.myapplication;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final List<Bere> listaBeri = new ArrayList<>();
-    private BeerAdapter adapter;
-    private DatabaseHelper dbHelper;
+    private static final String ACCUWEATHER_API_KEY = "API_KEY";
 
-    private final ActivityResultLauncher<Intent> addBeerLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    Bere berePrimita = result.getData().getParcelableExtra("BERE_OBJECT");
-                    if (berePrimita != null) {
-                        dbHelper.insertBere(berePrimita); // Metoda 1
-                        refreshList();
-                        Toast.makeText(this, "Bere adăugată în baza de date!", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-    );
+    private TextView tvCityKey;
+    private Spinner spForecastType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dbHelper = new DatabaseHelper(this);
+        EditText etCityName = findViewById(R.id.etCityName);
+        Button btnGetCityKey = findViewById(R.id.btnGetCityKey);
+        tvCityKey = findViewById(R.id.tvCityKey);
+        spForecastType = findViewById(R.id.spForecastType);
 
-        ListView lvBeri = findViewById(R.id.lvBeri);
-        Button btnAddBeer = findViewById(R.id.btnAddBeer);
-        Button btnShowAll = findViewById(R.id.btnShowAll);
-        Button btnSearchNume = findViewById(R.id.btnSearchNume);
-        Button btnFilterInterval = findViewById(R.id.btnFilterInterval);
-        Button btnDelete = findViewById(R.id.btnDelete);
-        Button btnUpdate = findViewById(R.id.btnUpdate);
-        Button btnSettings = findViewById(R.id.btnSettings);
-        Button btnBeerImages = findViewById(R.id.btnBeerImages);
+        String[] options = {"1 zi", "5 zile"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, options);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spForecastType.setAdapter(adapter);
 
-        EditText etSearchNume = findViewById(R.id.etSearchNume);
-        EditText etMinCant = findViewById(R.id.etMinCant);
-        EditText etMaxCant = findViewById(R.id.etMaxCant);
-        EditText etDeleteVal = findViewById(R.id.etDeleteVal);
-        EditText etUpdateLetter = findViewById(R.id.etUpdateLetter);
-
-        adapter = new BeerAdapter(this, listaBeri);
-        lvBeri.setAdapter(adapter);
-
-        // Metoda 2: Selectie toate
-        btnShowAll.setOnClickListener(v -> refreshList());
-
-        // Metoda 3: Selectie dupa nume
-        btnSearchNume.setOnClickListener(v -> {
-            String nume = etSearchNume.getText().toString();
-            if (!nume.isEmpty()) {
-                Bere b = dbHelper.getBereByNume(nume);
-                listaBeri.clear();
-                if (b != null) {
-                    listaBeri.add(b);
-                } else {
-                    Toast.makeText(this, "Nu s-a găsit nicio bere cu acest nume", Toast.LENGTH_SHORT).show();
+        btnGetCityKey.setOnClickListener(v -> {
+            String cityName = etCityName.getText().toString().trim();
+            if (!cityName.isEmpty()) {
+                String selected = spForecastType.getSelectedItem().toString();
+                String forecastType = "1day";
+                if (selected.equals("5 zile")) {
+                    forecastType = "5day";
+                } else if (selected.equals("10 zile")) {
+                    forecastType = "10day";
                 }
-                adapter.notifyDataSetChanged();
+                new FetchCityKeyTask().execute(cityName, ACCUWEATHER_API_KEY, forecastType);
+            } else {
+                Toast.makeText(MainActivity.this, "Vă rugăm să introduceți un oraș", Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
-        // Metoda 4: Selectie interval
-        btnFilterInterval.setOnClickListener(v -> {
-            String minStr = etMinCant.getText().toString();
-            String maxStr = etMaxCant.getText().toString();
-            if (!minStr.isEmpty() && !maxStr.isEmpty()) {
-                int min = Integer.parseInt(minStr);
-                int max = Integer.parseInt(maxStr);
-                List<Bere> filtered = dbHelper.getBeriInInterval(min, max);
-                listaBeri.clear();
-                listaBeri.addAll(filtered);
-                adapter.notifyDataSetChanged();
+    private class FetchCityKeyTask extends AsyncTask<String, Void, String[]> {
+        @Override
+        protected String[] doInBackground(String... params) {
+            String cityName = params[0];
+            String apiKey = params[1];
+            String forecastType = params[2];
+            StringBuilder response = new StringBuilder();
+            HttpURLConnection urlConnection = null;
+
+            try {
+                String encodedCity = URLEncoder.encode(cityName, "UTF-8");
+                URL url = new URL("https://dataservice.accuweather.com/locations/v1/cities/search?apikey=" + apiKey + "&q=" + encodedCity);
+                
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setConnectTimeout(5000);
+                urlConnection.setReadTimeout(5000);
+
+                int responseCode = urlConnection.getResponseCode();
+                InputStream inputStream;
+                
+                if (responseCode >= 200 && responseCode < 300) {
+                    inputStream = urlConnection.getInputStream();
+                } else {
+                    inputStream = urlConnection.getErrorStream();
+                }
+
+                if (inputStream != null) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
+                } else {
+                    return null;
+                }
+            } catch (Exception e) {
+                Log.e("AccuWeather", "Network error", e);
+                return null;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
             }
-        });
+            return new String[]{response.toString(), forecastType};
+        }
 
-        // Metoda 5: Stergere
-        btnDelete.setOnClickListener(v -> {
-            String valStr = etDeleteVal.getText().toString();
-            if (!valStr.isEmpty()) {
-                int val = Integer.parseInt(valStr);
-                dbHelper.deleteBeriMaiMariDecat(val);
-                refreshList();
-                Toast.makeText(this, "Înregistrări șterse!", Toast.LENGTH_SHORT).show();
+        @Override
+        protected void onPostExecute(String[] result) {
+            if (result == null || result[0].isEmpty()) {
+                tvCityKey.setText("Eroare la obținerea codului orașului.");
+                return;
             }
-        });
 
-        // Metoda 6: Update
-        btnUpdate.setOnClickListener(v -> {
-            String litera = etUpdateLetter.getText().toString();
-            if (!litera.isEmpty()) {
-                dbHelper.incrementCantitateByFirstLetter(litera);
-                refreshList();
-                Toast.makeText(this, "Update realizat!", Toast.LENGTH_SHORT).show();
+            String jsonResponse = result[0];
+            String forecastType = result[1];
+
+            try {
+                Object json = new JSONTokener(jsonResponse).nextValue();
+
+                if (json instanceof JSONArray) {
+                    JSONArray jsonArray = (JSONArray) json;
+                    if (jsonArray.length() > 0) {
+                        JSONObject cityObject = jsonArray.getJSONObject(0);
+                        String key = cityObject.getString("Key");
+                        String name = cityObject.getString("LocalizedName");
+                        tvCityKey.setText("Oraș: " + name + "\nCod oraș: " + key + "\nSe preia prognoza...");
+                        
+                        new FetchWeatherTask().execute(key, ACCUWEATHER_API_KEY, forecastType);
+                    } else {
+                        tvCityKey.setText("Orașul nu a fost găsit.");
+                    }
+                } else if (json instanceof JSONObject) {
+                    JSONObject errorObj = (JSONObject) json;
+                    String message = errorObj.optString("Message", "Eroare API necunoscută");
+                    tvCityKey.setText("Eroare API:\n" + message);
+                }
+            } catch (Exception e) {
+                Log.e("AccuWeather", "Parsing error", e);
+                tvCityKey.setText("Eroare procesare JSON oraș: " + e.getMessage());
             }
-        });
+        }
+    }
 
-        btnAddBeer.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, AddBeerActivity.class);
-            addBeerLauncher.launch(intent);
-        });
+    private class FetchWeatherTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            String locationKey = params[0];
+            String apiKey = params[1];
+            String forecastType = params[2];
+            StringBuilder response = new StringBuilder();
+            HttpURLConnection urlConnection = null;
 
-        btnSettings.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
-        });
+            try {
+                URL url = new URL("https://dataservice.accuweather.com/forecasts/v1/daily/" + forecastType + "/" + locationKey + "?apikey=" + apiKey + "&metric=true");
+                
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setConnectTimeout(5000);
+                urlConnection.setReadTimeout(5000);
 
-        btnBeerImages.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, BeerListActivity.class);
-            startActivity(intent);
-        });
+                int responseCode = urlConnection.getResponseCode();
+                InputStream inputStream;
+                
+                if (responseCode >= 200 && responseCode < 300) {
+                    inputStream = urlConnection.getInputStream();
+                } else {
+                    inputStream = urlConnection.getErrorStream();
+                }
 
-        refreshList();
+                if (inputStream != null) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
+                }
+            } catch (Exception e) {
+                Log.e("AccuWeather", "Forecast network error", e);
+                return null;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+            return response.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result == null || result.isEmpty()) {
+                tvCityKey.append("\nEroare la obținerea prognozei.");
+                return;
+            }
+
+            try {
+                JSONObject root = new JSONObject(result);
+                JSONArray dailyForecasts = root.getJSONArray("DailyForecasts");
+                
+                StringBuilder weatherInfo = new StringBuilder();
+                for (int i = 0; i < dailyForecasts.length(); i++) {
+                    JSONObject forecast = dailyForecasts.getJSONObject(i);
+                    String date = forecast.optString("Date", "N/A").substring(0, 10);
+                    JSONObject temperature = forecast.getJSONObject("Temperature");
+                    
+                    JSONObject min = temperature.getJSONObject("Minimum");
+                    double minVal = min.getDouble("Value");
+                    String minUnit = min.getString("Unit");
+
+                    JSONObject max = temperature.getJSONObject("Maximum");
+                    double maxVal = max.getDouble("Value");
+                    String maxUnit = max.getString("Unit");
+
+                    weatherInfo.append("\n\nData: ").append(date)
+                               .append("\nTemp Min: ").append(minVal).append(" ").append(minUnit)
+                               .append("\nTemp Max: ").append(maxVal).append(" ").append(maxUnit);
+                }
+                
+                String currentText = tvCityKey.getText().toString();
+                int loadingPos = currentText.indexOf("\nSe preia prognoza...");
+                if (loadingPos != -1) {
+                    currentText = currentText.substring(0, loadingPos);
+                }
+                tvCityKey.setText(currentText + weatherInfo.toString());
+
+            } catch (Exception e) {
+                Log.e("AccuWeather", "Forecast parsing error", e);
+                tvCityKey.append("\nEroare la procesarea prognozei.");
+            }
+        }
     }
 
     @Override
@@ -141,31 +248,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-
-        if (id == R.id.menu_second_activity) {
-            Intent intent = new Intent(this, SecondActivity.class);
-            startActivity(intent);
+        if (id == R.id.menu_beer_db) {
+            startActivity(new Intent(this, BeerDatabaseActivity.class));
+            return true;
+        } else if (id == R.id.menu_second_activity) {
+            startActivity(new Intent(this, SecondActivity.class));
             return true;
         } else if (id == R.id.menu_fourth_activity) {
-            Intent intent = new Intent(this, FourthActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(this, FourthActivity.class));
             return true;
         } else if (id == R.id.menu_beer_images) {
-            Intent intent = new Intent(this, BeerListActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(this, BeerListActivity.class));
             return true;
         } else if (id == R.id.menu_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
-
         return super.onOptionsItemSelected(item);
-    }
-
-    private void refreshList() {
-        listaBeri.clear();
-        listaBeri.addAll(dbHelper.getAllBeri());
-        adapter.notifyDataSetChanged();
     }
 }

@@ -1,138 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
     tools:context=".MainActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Căutare Oraș AccuWeather"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <EditText
+        android:id="@+id/etCityName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Introduceți numele orașului" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Selectați perioada prognozei:"
+        android:layout_marginTop="16dp"/>
+
+    <Spinner
+        android:id="@+id/spForecastType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/btnGetCityKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Obține Vremea"
+        android:layout_marginTop="16dp" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_marginTop="16dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvCityKey"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <Button
-                android:id="@+id/btnBeerImages"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Vezi Imagini Beri"
-                android:backgroundTint="@color/design_default_color_primary"
-                android:textColor="@android:color/white"
-                android:layout_marginBottom="16dp"
-                android:layout_marginTop="100px"/>
-
-            <Button
-                android:id="@+id/btnAddBeer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Adaugă Bere" />
-
-            <Button
-                android:id="@+id/btnShowAll"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Afișează Tot" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <EditText
-                    android:id="@+id/etSearchNume"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="Nume" />
-                <Button
-                    android:id="@+id/btnSearchNume"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Cauta" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <EditText
-                    android:id="@+id/etMinCant"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="Min"
-                    android:inputType="number" />
-                <EditText
-                    android:id="@+id/etMaxCant"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="Max"
-                    android:inputType="number" />
-                <Button
-                    android:id="@+id/btnFilterInterval"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Interval" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <EditText
-                    android:id="@+id/etDeleteVal"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="Cantitate >"
-                    android:inputType="number" />
-                <Button
-                    android:id="@+id/btnDelete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Șterge" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <EditText
-                    android:id="@+id/etUpdateLetter"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="Literă"
-                    android:maxLength="1" />
-                <Button
-                    android:id="@+id/btnUpdate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Update" />
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btnSettings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Setări"
-                android:layout_marginTop="8dp" />
-
-        </LinearLayout>
+            android:text="Date prognoză: -"
+            android:textSize="16sp"
+            android:padding="8dp" />
     </ScrollView>
-
-    <ListView
-        android:id="@+id/lvBeri"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp" />
 
 </LinearLayout>

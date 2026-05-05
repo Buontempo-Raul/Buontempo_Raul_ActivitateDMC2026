@@ -2,6 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/menu_beer_db"
+        android:title="Gestiune Beri (DB)"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/menu_second_activity"
         android:title="Lifecycle Demo (Second)"
         app:showAsAction="never" />

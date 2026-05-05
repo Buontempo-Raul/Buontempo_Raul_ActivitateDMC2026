@@ -1,0 +1,120 @@
+package com.example.myapplication;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import java.util.ArrayList;
+import java.util.List;
+
+public class BeerDatabaseActivity extends AppCompatActivity {
+
+    private final List<Bere> listaBeri = new ArrayList<>();
+    private BeerAdapter adapter;
+    private DatabaseHelper dbHelper;
+
+    private final ActivityResultLauncher<Intent> addBeerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Bere berePrimita = result.getData().getParcelableExtra("BERE_OBJECT");
+                    if (berePrimita != null) {
+                        dbHelper.insertBere(berePrimita);
+                        refreshList();
+                        Toast.makeText(this, "Bere adăugată în baza de date!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+    );
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_beer_database);
+
+        dbHelper = new DatabaseHelper(this);
+
+        ListView lvBeri = findViewById(R.id.lvBeri);
+        Button btnAddBeer = findViewById(R.id.btnAddBeer);
+        Button btnShowAll = findViewById(R.id.btnShowAll);
+        Button btnSearchNume = findViewById(R.id.btnSearchNume);
+        Button btnFilterInterval = findViewById(R.id.btnFilterInterval);
+        Button btnDelete = findViewById(R.id.btnDelete);
+        Button btnUpdate = findViewById(R.id.btnUpdate);
+
+        EditText etSearchNume = findViewById(R.id.etSearchNume);
+        EditText etMinCant = findViewById(R.id.etMinCant);
+        EditText etMaxCant = findViewById(R.id.etMaxCant);
+        EditText etDeleteVal = findViewById(R.id.etDeleteVal);
+        EditText etUpdateLetter = findViewById(R.id.etUpdateLetter);
+
+        adapter = new BeerAdapter(this, listaBeri);
+        lvBeri.setAdapter(adapter);
+
+        btnShowAll.setOnClickListener(v -> refreshList());
+
+        btnSearchNume.setOnClickListener(v -> {
+            String nume = etSearchNume.getText().toString();
+            if (!nume.isEmpty()) {
+                Bere b = dbHelper.getBereByNume(nume);
+                listaBeri.clear();
+                if (b != null) {
+                    listaBeri.add(b);
+                } else {
+                    Toast.makeText(this, "Nu s-a găsit nicio bere cu acest nume", Toast.LENGTH_SHORT).show();
+                }
+                adapter.notifyDataSetChanged();
+            }
+        });
+
+        btnFilterInterval.setOnClickListener(v -> {
+            String minStr = etMinCant.getText().toString();
+            String maxStr = etMaxCant.getText().toString();
+            if (!minStr.isEmpty() && !maxStr.isEmpty()) {
+                int min = Integer.parseInt(minStr);
+                int max = Integer.parseInt(maxStr);
+                List<Bere> filtered = dbHelper.getBeriInInterval(min, max);
+                listaBeri.clear();
+                listaBeri.addAll(filtered);
+                adapter.notifyDataSetChanged();
+            }
+        });
+
+        btnDelete.setOnClickListener(v -> {
+            String valStr = etDeleteVal.getText().toString();
+            if (!valStr.isEmpty()) {
+                int val = Integer.parseInt(valStr);
+                dbHelper.deleteBeriMaiMariDecat(val);
+                refreshList();
+                Toast.makeText(this, "Înregistrări șterse!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnUpdate.setOnClickListener(v -> {
+            String litera = etUpdateLetter.getText().toString();
+            if (!litera.isEmpty()) {
+                dbHelper.incrementCantitateByFirstLetter(litera);
+                refreshList();
+                Toast.makeText(this, "Update realizat!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnAddBeer.setOnClickListener(v -> {
+            Intent intent = new Intent(BeerDatabaseActivity.this, AddBeerActivity.class);
+            addBeerLauncher.launch(intent);
+        });
+
+        refreshList();
+    }
+
+    private void refreshList() {
+        listaBeri.clear();
+        listaBeri.addAll(dbHelper.getAllBeri());
+        adapter.notifyDataSetChanged();
+    }
+}

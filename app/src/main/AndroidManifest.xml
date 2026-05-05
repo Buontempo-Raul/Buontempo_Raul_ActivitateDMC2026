@@ -24,6 +24,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".BeerDatabaseActivity"
+            android:exported="false"
+            android:label="Gestiune Beri" />
+        <activity
             android:name=".AddBeerActivity"
             android:exported="false" />
         <activity
