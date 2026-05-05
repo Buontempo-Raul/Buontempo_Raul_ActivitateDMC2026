@@ -19,6 +19,16 @@
             android:orientation="vertical">
 
             <Button
+                android:id="@+id/btnBeerImages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Vezi Imagini Beri"
+                android:backgroundTint="@color/design_default_color_primary"
+                android:textColor="@android:color/white"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="100px"/>
+
+            <Button
                 android:id="@+id/btnAddBeer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -28,7 +38,7 @@
                 android:id="@+id/btnShowAll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Afișează Tot (Metoda 2)" />
+                android:text="Afișează Tot" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -44,7 +54,7 @@
                     android:id="@+id/btnSearchNume"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cauta (Metoda 3)" />
+                    android:text="Cauta" />
             </LinearLayout>
 
             <LinearLayout
@@ -69,7 +79,7 @@
                     android:id="@+id/btnFilterInterval"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Interval (Metoda 4)" />
+                    android:text="Interval" />
             </LinearLayout>
 
             <LinearLayout
@@ -87,7 +97,7 @@
                     android:id="@+id/btnDelete"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Șterge (Metoda 5)" />
+                    android:text="Șterge" />
             </LinearLayout>
 
             <LinearLayout
@@ -105,7 +115,7 @@
                     android:id="@+id/btnUpdate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Update (Metoda 6)" />
+                    android:text="Update" />
             </LinearLayout>
 
             <Button

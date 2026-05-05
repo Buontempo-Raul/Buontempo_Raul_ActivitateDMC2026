@@ -2,12 +2,15 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnDelete = findViewById(R.id.btnDelete);
         Button btnUpdate = findViewById(R.id.btnUpdate);
         Button btnSettings = findViewById(R.id.btnSettings);
+        Button btnBeerImages = findViewById(R.id.btnBeerImages);
 
         EditText etSearchNume = findViewById(R.id.etSearchNume);
         EditText etMinCant = findViewById(R.id.etMinCant);
@@ -120,7 +124,43 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        btnBeerImages.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, BeerListActivity.class);
+            startActivity(intent);
+        });
+
         refreshList();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.menu_second_activity) {
+            Intent intent = new Intent(this, SecondActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.menu_fourth_activity) {
+            Intent intent = new Intent(this, FourthActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.menu_beer_images) {
+            Intent intent = new Intent(this, BeerListActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.menu_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void refreshList() {
