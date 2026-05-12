@@ -24,6 +24,14 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".WeatherActivity"
+            android:exported="false"
+            android:label="Prognoză Meteo" />
+        <activity
+            android:name=".ChartActivity"
+            android:exported="false"
+            android:label="Vizualizare Grafic" />
+        <activity
             android:name=".BeerDatabaseActivity"
             android:exported="false"
             android:label="Gestiune Beri" />

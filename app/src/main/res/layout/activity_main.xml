@@ -10,50 +10,25 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Căutare Oraș AccuWeather"
+        android:text="Introducere Date Grafic"
         android:textSize="20sp"
         android:textStyle="bold"
         android:gravity="center"
         android:layout_marginBottom="24dp" />
 
     <EditText
-        android:id="@+id/etCityName"
+        android:id="@+id/etChartValues"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Introduceți numele orașului" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Selectați perioada prognozei:"
-        android:layout_marginTop="16dp"/>
-
-    <Spinner
-        android:id="@+id/spForecastType"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp" />
+        android:hint="Introduceti valori separate prin spatiu"
+        android:inputType="text" />
 
     <Button
-        android:id="@+id/btnGetCityKey"
+        android:id="@+id/btnGenerateChart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Obține Vremea"
+        android:text="Vezi Grafic"
         android:layout_marginTop="16dp" />
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp">
-
-        <TextView
-            android:id="@+id/tvCityKey"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Date prognoză: -"
-            android:textSize="16sp"
-            android:padding="8dp" />
-    </ScrollView>
 
 </LinearLayout>
